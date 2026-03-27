@@ -36,3 +36,14 @@
 .no-close .ui-dialog-titlebar-close {
     display: none;
 }
+
+/* brief highlight flash for undo/redo feedback -- use inset box-shadow
+   so it layers on top of whatever background the button already has */
+.undo-redo-flash {
+    box-shadow: inset 0 0 0 100px rgba(80, 120, 200, 0.18) !important;
+    transition: box-shadow 0s;
+}
+.undo-redo-fade {
+    box-shadow: inset 0 0 0 100px transparent !important;
+    transition: box-shadow 1.2s ease-out;
+}
