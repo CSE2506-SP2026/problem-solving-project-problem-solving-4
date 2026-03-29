@@ -482,3 +482,157 @@ function standardLoad(location, extraWork) {
  * Set up document on ready.
  */
 $document.ready(setUpInitial);
+
+function addExplanationIcons() {
+  // remove old icons first so they do not duplicate
+  document.querySelectorAll(".feature-info-icon").forEach(icon => icon.remove());
+
+  function makeInfoIcon(explanation) {
+    const info = document.createElement("span");
+    info.className = "feature-info-icon";
+    info.textContent = "ⓘ";
+    info.setAttribute("data-explanation", explanation);
+    info.style.marginLeft = "8px";
+    info.style.cursor = "pointer";
+    info.style.display = "inline-block";
+    info.style.fontSize = "0.9em";
+
+    info.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      showExplanationPopup(
+        info.getAttribute("data-explanation"),
+        ev.pageX,
+        ev.pageY
+      );
+    });
+
+    return info;
+  }
+
+  // helper: find first element whose text includes some phrase
+  function findElementByText(selector, text) {
+    return Array.from(document.querySelectorAll(selector)).find(el =>
+      el.textContent && el.textContent.trim().includes(text)
+    );
+  }
+
+  // 1) Effective Permissions tab
+  const effectivePermissionsTab = findElementByText("*", "Effective Permissions");
+  if (effectivePermissionsTab) {
+    effectivePermissionsTab.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Effective permissions show the access a selected user or group actually has after the system considers all relevant permission settings together. This helps you see the final result instead of checking each entry one by one."
+      )
+    );
+  }
+
+  // 2) Inherited from column header
+  const inheritedFromHeader = findElementByText("*", "Inherited from");
+  if (inheritedFromHeader) {
+    inheritedFromHeader.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "This column shows where a permission came from. If a permission is inherited, it came from a parent folder or higher-level object. If it says not inherited, that permission was set directly on this item."
+      )
+    );
+  }
+
+  // 3) Include inheritable permissions checkbox text
+  const includeInheritedLabel = findElementByText(
+    "*",
+    "Include inheritable permissions from this object's parent"
+  );
+  if (includeInheritedLabel) {
+    includeInheritedLabel.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Turn this on to let this item receive permissions from its parent. This can make permission management simpler because the item follows the broader access rules above it."
+      )
+    );
+  }
+
+
+  // 4) Replace child permissions checkbox text
+  const replaceChildLabel = findElementByText(
+    "*",
+    "Replace all child object permissions with inheritable permissions from this object"
+  );
+  if (replaceChildLabel) {
+    replaceChildLabel.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Use this when you want child files and folders to stop using their own separate permission entries and instead inherit from this object. This can change access for many items at once, so it should be used carefully."
+      )
+    );
+  }
+
+  // 5) Edit button
+  const editButton = Array.from(document.querySelectorAll("button, .ui-button"))
+    .find(btn => btn.textContent && btn.textContent.trim().includes("Edit"));
+  if (editButton) {
+    editButton.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Edit lets you change the currently selected permission entry. This is useful when you want to revise an existing rule instead of adding a new one."
+      )
+    );
+  }
+
+  // 6) Permissions tab
+  const permissionsTab = findElementByText("*", "Permissions");
+  if (permissionsTab) {
+    permissionsTab.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "This tab lists the explicit permission entries attached to this item. It helps you see who has access and whether those entries are inherited or directly assigned."
+      )
+    );
+  }
+
+  // 7) Owner tab
+  const ownerTab = findElementByText("*", "Owner");
+  if (ownerTab) {
+    ownerTab.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "The owner is the account that controls this object at a high level. Owners often have the ability to view or change permissions even when other users cannot."
+      )
+    );
+  }
+}
+
+function showExplanationPopup(text, x, y) {
+  let popup = document.getElementById("feature-explanation-popup");
+
+  if (!popup) {
+    popup = document.createElement("div");
+    popup.id = "feature-explanation-popup";
+    popup.style.position = "absolute";
+    popup.style.maxWidth = "320px";
+    popup.style.padding = "12px";
+    popup.style.background = "white";
+    popup.style.border = "1px solid #666";
+    popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+    popup.style.zIndex = "9999";
+    popup.style.lineHeight = "1.4";
+    popup.style.borderRadius = "6px";
+    document.body.appendChild(popup);
+  }
+
+  popup.textContent = text;
+  popup.style.left = x + "px";
+  popup.style.top = y + "px";
+  popup.style.display = "block";
+}
+
+document.addEventListener("click", function(e) {
+  const popup = document.getElementById("feature-explanation-popup");
+  if (popup && !e.target.classList.contains("feature-info-icon")) {
+    popup.style.display = "none";
+  }
+});
+
+window.addEventListener("load", function() {
+  addExplanationIcons();
+});
