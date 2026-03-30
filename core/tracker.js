@@ -510,155 +510,67 @@ function addExplanationIcons() {
     return info;
   }
 
-  // helper: find first element whose text includes some phrase
-  function findElementByText(selector, text) {
-    return Array.from(document.querySelectorAll(selector)).find(el =>
-      el.textContent && el.textContent.trim().includes(text)
-    );
+  // helper: append an info icon after an element found by ID
+  function addIconById(id, explanation) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.insertAdjacentElement(
+        "afterend",
+        makeInfoIcon(explanation)
+      );
+    }
   }
 
-  // 1) Effective Permissions tab
-  const effectivePermissionsTab = findElementByText("*", "Effective Permissions");
-  if (effectivePermissionsTab) {
-    effectivePermissionsTab.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Effective permissions show the access a selected user or group actually has after the system considers all relevant permission settings together. This helps you see the final result instead of checking each entry one by one."
-      )
-    );
-  }
-
-  // 2) Inherited from column header
-  const inheritedFromHeader = findElementByText("*", "Inherited from");
-  if (inheritedFromHeader) {
-    inheritedFromHeader.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "This column shows where a permission came from. If a permission is inherited, it came from a parent folder or higher-level object. If it says not inherited, that permission was set directly on this item."
-      )
-    );
-  }
-
-  // 3) Include inheritable permissions checkbox text
-  const includeInheritedLabel = findElementByText(
-    "*",
-    "Include inheritable permissions from this object's parent"
+  // 1) Permissions tab
+  addIconById("adv_permissions_tab_elem",
+    "This tab lists the explicit permission entries attached to this item. It helps you see who has access and whether those entries are inherited or directly assigned."
   );
-  if (includeInheritedLabel) {
-    includeInheritedLabel.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Turn this on to let this item receive permissions from its parent. This can make permission management simpler because the item follows the broader access rules above it."
-      )
-    );
-  }
 
-
-  // 4) Replace child permissions checkbox text
-  const replaceChildLabel = findElementByText(
-    "*",
-    "Replace all child object permissions with inheritable permissions from this object"
+  // 2) Owner tab
+  addIconById("adv_owner_tab_elem",
+    "The owner is the account that controls this object at a high level. Owners often have the ability to view or change permissions even when other users cannot."
   );
-  if (replaceChildLabel) {
-    replaceChildLabel.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Use this when you want child files and folders to stop using their own separate permission entries and instead inherit from this object. This can change access for many items at once, so it should be used carefully."
-      )
-    );
-  }
 
-  // 5) Edit button
-  const editButton = Array.from(document.querySelectorAll("button, .ui-button"))
-    .find(btn => btn.textContent && btn.textContent.trim().includes("Edit"));
-  if (editButton) {
-    editButton.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Edit lets you change the currently selected permission entry. This is useful when you want to revise an existing rule instead of adding a new one."
-      )
-    );
-  }
+  // 3) Effective Permissions tab
+  addIconById("adv_effective_tab_elem",
+    "Effective permissions show the access a selected user or group actually has after the system considers all relevant permission settings together. This helps you see the final result instead of checking each entry one by one."
+  );
 
-  // 6) Permissions tab
-  const permissionsTab = findElementByText("*", "Permissions");
-  if (permissionsTab) {
-    permissionsTab.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "This tab lists the explicit permission entries attached to this item. It helps you see who has access and whether those entries are inherited or directly assigned."
-      )
-    );
-  }
+  // 4) Inherited from column header
+  addIconById("adv_perm_header_inherited",
+    "This column shows where a permission came from. If a permission is inherited, it came from a parent folder or higher-level object. If it says not inherited, that permission was set directly on this item."
+  );
 
-  // 7) Owner tab
-  const ownerTab = findElementByText("*", "Owner");
-  if (ownerTab) {
-    ownerTab.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "The owner is the account that controls this object at a high level. Owners often have the ability to view or change permissions even when other users cannot."
-      )
-    );
-  }
+  // 5) Include inheritable permissions checkbox label
+  addIconById("adv_perm_inheritance_label",
+    "Turn this on to let this item receive permissions from its parent. This can make permission management simpler because the item follows the broader access rules above it."
+  );
+
+  // 6) Replace child permissions checkbox label
+  addIconById("adv_perm_replace_child_permissions_label",
+    "Use this when you want child files and folders to stop using their own separate permission entries and instead inherit from this object. This can change access for many items at once, so it should be used carefully."
+  );
+
+  // 7) Edit button in advanced dialog
+  addIconById("adv_perm_edit",
+    "Edit lets you change the currently selected permission entry. This is useful when you want to revise an existing rule instead of adding a new one."
+  );
+
+  // 8) Add user button in permissions dialog
+  addIconById("perm_add_user_button",
+    "Add lets you create a new permission entry for a user or group."
+  );
+
+  // 9) Remove user button in permissions dialog
+  addIconById("perm_remove_user",
+    "Remove deletes the selected permission entry from this item."
+  );
+
+  // 10) Advanced button in permissions dialog
+  addIconById("perm-dialog-advanced-button",
+    "Advanced opens more detailed permission settings, including inheritance and special permissions."
+  );
 }
-  // 8) Add button
-  const addButton = Array.from(document.querySelectorAll("button, .ui-button"))
-    .find(btn => btn.textContent && btn.textContent.trim().includes("Add"));
-  if (addButton) {
-    addButton.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Add lets you create a new permission entry for a user or group."
-      )
-    );
-  }
-
-  // 9) Remove button
-  const removeButton = Array.from(document.querySelectorAll("button, .ui-button"))
-    .find(btn => btn.textContent && btn.textContent.trim().includes("Remove"));
-  if (removeButton) {
-    removeButton.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Remove deletes the selected permission entry from this item."
-      )
-    );
-  }
-
-  // 10) Advanced button
-  const advancedButton = Array.from(document.querySelectorAll("button, .ui-button"))
-    .find(btn => btn.textContent && btn.textContent.trim().includes("Advanced"));
-  if (advancedButton) {
-    advancedButton.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Advanced opens more detailed permission settings, including inheritance and special permissions."
-      )
-    );
-  }
-
-  // 11) Effective Permissions
-  const effectivePermissions = findElementByText("*", "Effective Permissions");
-  if (effectivePermissions) {
-    effectivePermissions.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "Effective permissions show the final access a user or group has after all permission rules are combined."
-      )
-    );
-  }
-
-  // 12) Inherited from
-  const inheritedFrom = findElementByText("*", "Inherited from");
-  if (inheritedFrom) {
-    inheritedFrom.insertAdjacentElement(
-      "afterend",
-      makeInfoIcon(
-        "This shows where a permission came from. Inherited permissions come from a parent folder or object."
-      )
-    );
-  }
 
 function showExplanationPopup(text, x, y) {
   let popup = document.getElementById("feature-explanation-popup");
