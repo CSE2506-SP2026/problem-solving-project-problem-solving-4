@@ -475,6 +475,7 @@ function standardLoad(location, extraWork) {
         if (typeof extraWork === 'function') {
             extraWork();
         }
+        addExplanationIcons();
     });
 }
 
@@ -601,6 +602,63 @@ function addExplanationIcons() {
     );
   }
 }
+  // 8) Add button
+  const addButton = Array.from(document.querySelectorAll("button, .ui-button"))
+    .find(btn => btn.textContent && btn.textContent.trim().includes("Add"));
+  if (addButton) {
+    addButton.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Add lets you create a new permission entry for a user or group."
+      )
+    );
+  }
+
+  // 9) Remove button
+  const removeButton = Array.from(document.querySelectorAll("button, .ui-button"))
+    .find(btn => btn.textContent && btn.textContent.trim().includes("Remove"));
+  if (removeButton) {
+    removeButton.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Remove deletes the selected permission entry from this item."
+      )
+    );
+  }
+
+  // 10) Advanced button
+  const advancedButton = Array.from(document.querySelectorAll("button, .ui-button"))
+    .find(btn => btn.textContent && btn.textContent.trim().includes("Advanced"));
+  if (advancedButton) {
+    advancedButton.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Advanced opens more detailed permission settings, including inheritance and special permissions."
+      )
+    );
+  }
+
+  // 11) Effective Permissions
+  const effectivePermissions = findElementByText("*", "Effective Permissions");
+  if (effectivePermissions) {
+    effectivePermissions.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "Effective permissions show the final access a user or group has after all permission rules are combined."
+      )
+    );
+  }
+
+  // 12) Inherited from
+  const inheritedFrom = findElementByText("*", "Inherited from");
+  if (inheritedFrom) {
+    inheritedFrom.insertAdjacentElement(
+      "afterend",
+      makeInfoIcon(
+        "This shows where a permission came from. Inherited permissions come from a parent folder or object."
+      )
+    );
+  }
 
 function showExplanationPopup(text, x, y) {
   let popup = document.getElementById("feature-explanation-popup");
