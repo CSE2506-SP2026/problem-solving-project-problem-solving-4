@@ -55,9 +55,15 @@ emitState = function(purpose) {
         if (undo_stack.length > MAX_UNDO) undo_stack.shift()
         redo_stack = []
     }
+    let before_snapshot = prev_snapshot
     original_emit_state(purpose)
     prev_snapshot = capture_snapshot()
     update_undo_redo_buttons()
+
+    if (confirmation_initialized && !is_undo_redo && before_snapshot && purpose !== "Initial permission state") {
+        let msg = build_confirmation_message(before_snapshot, prev_snapshot)
+        if (msg) show_confirmation(msg)
+    }
 }
 
 // compare two snapshots, return filepaths that differ
@@ -122,6 +128,8 @@ function undo() {
     flash_changed_files(get_changed_files(before, prev_snapshot))
     is_undo_redo = false
     update_undo_redo_buttons()
+    let undo_detail = build_confirmation_message(prev_snapshot, before)
+    show_confirmation("Action undone." + (undo_detail ? "<br/><br/>" + undo_detail : ""))
 }
 
 // re-apply a previously undone state
@@ -139,6 +147,8 @@ function redo() {
     flash_changed_files(get_changed_files(before, prev_snapshot))
     is_undo_redo = false
     update_undo_redo_buttons()
+    let redo_detail = build_confirmation_message(before, prev_snapshot)
+    show_confirmation("Action redone." + (redo_detail ? "<br/><br/>" + redo_detail : ""))
 }
 
 // enable/disable buttons based on stack state
@@ -167,6 +177,96 @@ $(document).keydown(function(e) {
 })
 
 
+let confirmation_initialized = true
+
+let confirmation_dialog = $('<div id="confirmation-dialog" title="Confirmation"></div>')
+$('#html-loc').append(confirmation_dialog)
+confirmation_dialog.dialog({
+    autoOpen: false,
+    modal: true,
+    appendTo: "#html-loc",
+    width: 350,
+    position: { my: "top", at: "top", of: $('#html-loc') },
+    buttons: {
+        OK: {
+            text: "OK",
+            id: "confirmation-ok-button",
+            click: function() { $(this).dialog("close") }
+        }
+    }
+})
+
+function show_confirmation(message) {
+    confirmation_dialog.html(message)
+    confirmation_dialog.dialog('open')
+}
+
+function ace_key(ace) {
+    let who = typeof ace.who === 'string' ? ace.who : ace.who.name
+    return who + '|' + ace.permission + '|' + (ace.is_allow_ace ? 'allow' : 'deny')
+}
+
+function build_confirmation_message(before, after) {
+    let lines = []
+
+    for (let i = 0; i < before.length; i++) {
+        let b = before[i], a = after[i]
+        let filename = b.filepath.split('/').pop()
+
+        if (get_user_name(b.owner) !== get_user_name(a.owner)) {
+            lines.push(`Owner of <b>${filename}</b> changed to <b>${get_user_name(a.owner)}</b>.`)
+        }
+
+        if (b.using_permission_inheritance !== a.using_permission_inheritance) {
+            if (a.using_permission_inheritance) {
+                lines.push(`Inheritance enabled for <b>${filename}</b>.`)
+            } else {
+                if (a.acl.length > b.acl.length) {
+                    lines.push(`Inheritance disabled for <b>${filename}</b>. Inherited permissions have been converted to direct permissions.`)
+                } else {
+                    lines.push(`Inheritance disabled for <b>${filename}</b>. Inherited permissions have been removed.`)
+                }
+            }
+        }
+
+        let b_keys = new Set(b.acl.map(ace_key))
+        let a_keys = new Set(a.acl.map(ace_key))
+
+        let grouped = {}
+        for (let ace of a.acl) {
+            if (!b_keys.has(ace_key(ace))) {
+                let who = typeof ace.who === 'string' ? ace.who : ace.who.name
+                let gkey = who + '|' + (ace.is_allow_ace ? 'Allow' : 'Deny') + '|added'
+                if (!grouped[gkey]) grouped[gkey] = { who, type: ace.is_allow_ace ? 'Allow' : 'Deny', action: 'added', perms: [] }
+                grouped[gkey].perms.push(ace.permission)
+            }
+        }
+        for (let ace of b.acl) {
+            if (!a_keys.has(ace_key(ace))) {
+                let who = typeof ace.who === 'string' ? ace.who : ace.who.name
+                let gkey = who + '|' + (ace.is_allow_ace ? 'Allow' : 'Deny') + '|removed'
+                if (!grouped[gkey]) grouped[gkey] = { who, type: ace.is_allow_ace ? 'Allow' : 'Deny', action: 'removed', perms: [] }
+                grouped[gkey].perms.push(ace.permission)
+            }
+        }
+
+        for (let gkey in grouped) {
+            let g = grouped[gkey]
+            let count = g.perms.length
+            lines.push(`${g.type} ${g.action} for <b>${g.who}</b> on <b>${filename}</b> (${count} permission${count > 1 ? 's' : ''}).`)
+        }
+
+        if (lines.length > 0 && path_to_file[b.filepath] && path_to_file[b.filepath].using_permission_inheritance
+            && b.using_permission_inheritance === a.using_permission_inheritance) {
+            lines.push('<i>Note: this file inherits permissions from its parent.</i>')
+        }
+    }
+
+    if (lines.length === 0) return null
+    return lines.join('<br/>')
+}
+
+
 // ---- Display file structure ----
 
 // (recursively) makes and returns an html element (wrapped in a jquery object) for a given file object
@@ -176,9 +276,9 @@ function make_file_element(file_obj) {
     if(file_obj.is_folder) {
         let folder_elem = $(`<div class='folder' id="${file_hash}_div">
             <h3 id="${file_hash}_header">
-                <span class="oi oi-folder" id="${file_hash}_icon"/> ${file_obj.filename} 
-                <button class="ui-button ui-widget ui-corner-all permbutton" path="${file_hash}" id="${file_hash}_permbutton"> 
-                    <span class="oi oi-lock-unlocked" id="${file_hash}_permicon"/> 
+                <span class="oi oi-folder" id="${file_hash}_icon"/> ${file_obj.filename}
+                <button class="ui-button ui-widget ui-corner-all permbutton" path="${file_hash}" id="${file_hash}_permbutton">
+                    <span class="oi oi-lock-unlocked" id="${file_hash}_permicon"/>
                 </button>
             </h3>
         </div>`)
@@ -197,8 +297,8 @@ function make_file_element(file_obj) {
     else {
         return $(`<div class='file'  id="${file_hash}_div">
             <span class="oi oi-file" id="${file_hash}_icon"/> ${file_obj.filename}
-            <button class="ui-button ui-widget ui-corner-all permbutton" path="${file_hash}" id="${file_hash}_permbutton"> 
-                <span class="oi oi-lock-unlocked" id="${file_hash}_permicon"/> 
+            <button class="ui-button ui-widget ui-corner-all permbutton" path="${file_hash}" id="${file_hash}_permbutton">
+                <span class="oi oi-lock-unlocked" id="${file_hash}_permicon"/>
             </button>
         </div>`)
     }
@@ -206,7 +306,7 @@ function make_file_element(file_obj) {
 
 for(let root_file of root_files) {
     let file_elem = make_file_element(root_file)
-    $( "#filestructure" ).append( file_elem);    
+    $( "#filestructure" ).append( file_elem);
 }
 
 
@@ -236,4 +336,4 @@ $('.permbutton').click( function( e ) {
 
 
 // ---- Assign unique ids to everything that doesn't have an ID ----
-$('#html-loc').find('*').uniqueId() 
+$('#html-loc').find('*').uniqueId()
