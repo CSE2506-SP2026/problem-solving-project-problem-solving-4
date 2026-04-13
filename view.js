@@ -212,6 +212,7 @@ function build_confirmation_message(before, after) {
     for (let i = 0; i < before.length; i++) {
         let b = before[i], a = after[i]
         let filename = b.filepath.split('/').pop()
+        let lines_before = lines.length
 
         if (get_user_name(b.owner) !== get_user_name(a.owner)) {
             lines.push(`Owner of <b>${filename}</b> changed to <b>${get_user_name(a.owner)}</b>.`)
@@ -256,7 +257,7 @@ function build_confirmation_message(before, after) {
             lines.push(`${g.type} ${g.action} for <b>${g.who}</b> on <b>${filename}</b> (${count} permission${count > 1 ? 's' : ''}).`)
         }
 
-        if (lines.length > 0 && path_to_file[b.filepath] && path_to_file[b.filepath].using_permission_inheritance
+        if (lines.length > lines_before && path_to_file[b.filepath] && path_to_file[b.filepath].using_permission_inheritance
             && b.using_permission_inheritance === a.using_permission_inheritance) {
             lines.push('<i>Note: this file inherits permissions from its parent.</i>')
         }
