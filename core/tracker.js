@@ -521,6 +521,7 @@ function addExplanationIcons() {
     }
   }
 
+
   // 1) Permissions tab
   addIconById("adv_permissions_tab_elem",
     "This tab lists the explicit permission entries attached to this item. It helps you see who has access and whether those entries are inherited or directly assigned."
@@ -570,6 +571,7 @@ function addExplanationIcons() {
   addIconById("perm-dialog-advanced-button",
     "Advanced opens more detailed permission settings, including inheritance and special permissions."
   );
+
 }
 
 function showExplanationPopup(text, x, y) {

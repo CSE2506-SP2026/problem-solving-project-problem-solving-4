@@ -110,3 +110,31 @@
     background: #f9f9f9;
     line-height: 1.6;
 }
+
+/* Add + OK BLUE */
+#perm_add_user_button,
+#perm-dialog-ok-button {
+    background: #007fff !important;
+    color: white !important;
+    border: 1px solid #007fff !important;
+}
+
+/* blue hover  */
+#perm_add_user_button:hover,
+#perm-dialog-ok-button:hover {
+    filter: brightness(0.95);
+}
+
+/* Advanced + Remove STAY GRAYYYY */
+#perm-dialog-advanced-button,
+#perm_remove_user {
+    background: #f0f0f0 !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+}
+
+/* gray hover */
+#perm-dialog-advanced-button:hover,
+#perm_remove_user:hover {
+    background: #e5e5e5 !important;
+}
