@@ -208,6 +208,34 @@
                 <script src="view.js"></script>
             </div>
         </div>
+
+        <div id="inheritance-explainer">
+            <div id="inheritance-explainer-header" onclick="toggleInheritanceGuide()">
+                <strong>📘 Inheritance Guide</strong>
+                <span id="inheritance-arrow">▼</span>
+            </div>
+
+            <div id="inheritance-content" >
+                <p>
+                    When a file or folder has <strong>inheritance enabled</strong>, it automatically 
+                    receives the permissions of its parent folder. These are called <strong>inherited permissions</strong> 
+                    and appear as greyed-out checkmarks in the permissions dialog.
+                </p>
+                <p>
+                    For example, if <code>important_project/</code> grants <strong>employee1</strong> Read access, 
+                    then all files inside that folder will also grant employee1 Read access unless inheritance is turned off.
+                </p>
+                <br>
+                <p>
+                    Because inherited permissions come from the parent, <strong>you cannot edit them directly 
+                    on the child file</strong>. To change them you must either:
+                </p>
+                <ol>
+                    <li>Modify the permission on the <strong>parent folder</strong>, or</li>
+                    <li>Disable inheritance on the file and set permissions manually</li>
+                </ol>
+            </div>
+        </div>
     </div>
     <script id="log_model_script" src="core/entry_model.js">
     </script>
@@ -216,6 +244,19 @@
     <script id="user_data_model_script" src="core/user_data_model.js">
     </script>
     <script id="script-added-for-256" src="core/tracker.js">
+    </script>
+    <script>
+        function toggleInheritanceGuide() {
+            let content = document.getElementById('inheritance-content')
+            let arrow = document.getElementById('inheritance-arrow')
+            if (content.style.display === 'none') {
+                content.style.display = 'block'
+                arrow.textContent = '▲'
+            } else {
+                content.style.display = 'none'
+                arrow.textContent = '▼'
+            }
+        }
     </script>
 </body>
 

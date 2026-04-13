@@ -266,6 +266,13 @@ function define_grouped_permission_checkboxes(id_prefix, which_groups = null) {
                     if(grouped_perms[ace_type][allowed_group].inherited) {
                         // can't uncheck inherited permissions.
                         checkbox.prop('disabled', true)
+                        checkbox.wrap('<span class="inherited-checkbox-wrapper"></span>')
+                        checkbox.parent().append(`
+                            <div class="inherited-tooltip">
+                                This permission is inherited and cannot be edited directly.
+                                Check <b>"Inheritance Guide"</b> to learn more.
+                            </div>
+                        `)
                     }
 
                 }
