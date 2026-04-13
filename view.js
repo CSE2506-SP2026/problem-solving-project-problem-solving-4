@@ -62,7 +62,7 @@ emitState = function(purpose) {
 
     if (confirmation_initialized && !is_undo_redo && before_snapshot && purpose !== "Initial permission state") {
         let msg = build_confirmation_message(before_snapshot, prev_snapshot)
-        if (msg) show_confirmation(msg)
+        if (msg) show_confirmation(msg, true)
     }
 }
 
@@ -129,7 +129,7 @@ function undo() {
     is_undo_redo = false
     update_undo_redo_buttons()
     let undo_detail = build_confirmation_message(prev_snapshot, before)
-    show_confirmation("Action undone." + (undo_detail ? "<br/><br/>" + undo_detail : ""))
+    show_confirmation("Action undone." + (undo_detail ? "<br/><br/>" + undo_detail : ""), false)
 }
 
 // re-apply a previously undone state
@@ -148,7 +148,7 @@ function redo() {
     is_undo_redo = false
     update_undo_redo_buttons()
     let redo_detail = build_confirmation_message(before, prev_snapshot)
-    show_confirmation("Action redone." + (redo_detail ? "<br/><br/>" + redo_detail : ""))
+    show_confirmation("Action redone." + (redo_detail ? "<br/><br/>" + redo_detail : ""), false)
 }
 
 // enable/disable buttons based on stack state
@@ -188,6 +188,16 @@ confirmation_dialog.dialog({
     width: 350,
     position: { my: "top", at: "top", of: $('#html-loc') },
     buttons: {
+        Undo: {
+            text: "Undo",
+            id: "confirmation-undo-button",
+            click: function() { $(this).dialog("close"); undo() }
+        },
+        Redo: {
+            text: "Redo",
+            id: "confirmation-redo-button",
+            click: function() { $(this).dialog("close"); redo() }
+        },
         OK: {
             text: "OK",
             id: "confirmation-ok-button",
@@ -196,8 +206,15 @@ confirmation_dialog.dialog({
     }
 })
 
-function show_confirmation(message) {
+function show_confirmation(message, show_undo_redo) {
     confirmation_dialog.html(message)
+    if (show_undo_redo) {
+        $('#confirmation-undo-button').show()
+        $('#confirmation-redo-button').show()
+    } else {
+        $('#confirmation-undo-button').hide()
+        $('#confirmation-redo-button').hide()
+    }
     confirmation_dialog.dialog('open')
 }
 
